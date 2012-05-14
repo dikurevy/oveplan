@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<script type="text/javascript" src="knockout-2.0.0.js"></script>
+<script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+<link rel="StyleSheet" href="style.css" type="text/css">
+</head>
+<body>
+  <table>
+    <col>
+    <colgroup data-bind="foreach: actors">
+      <col data-bind="css: {inUse: sketches().length > 0,
+        dblBooked: sketches().length > 1, disabled: disabled}"></col>
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Sketch/navn</th>
+        <!-- ko foreach: actors -->
+        <th>
+          <input type="checkbox" data-bind="checked: disabled" /><label
+          data-bind="text: name" />
+        </th>
+        <!-- /ko -->
+      </tr>
+    </thead>
+    <tbody data-bind="foreach: sketches">
+      <tr data-bind="css: {inUse: inUse, disabled: taken}">
+        <th>
+          <input type="checkbox" data-bind="checked: inUse, attr: {'id':
+          key},
+          value: key"/>
+          <label data-bind="text: key, attr: {'for': key}"></label>
+        </th>
+          <!-- ko foreach: $root.actors -->
+          <td data-bind="if: $parent.inSketch($data)">
+          <!-- ko ifnot: disabled -->
+          <input type="checkbox" data-bind="value: $parent.key(),
+          checked: sketches" /><label data-bind="text:
+          $parent.getRole($data)">
+            </label>
+          <!-- /ko -->
+          </td>
+          <!-- /ko -->
+      </tr>
+    </tbody> 
+  </table>
+</body>
+<script type="text/javascript" src="model.js"></script>
+</html>
