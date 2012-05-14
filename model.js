@@ -174,10 +174,24 @@ ko.bindingHandlers.selectActor = {
   }
 }
 */
+var Act = function(data){
+  self = this;
+  self.title = ko.observable(data.title);
+  self.sketches = ko.observableArray([]);
+}
+
+var Segment = function(data){
+  self = this;
+  self.actors = data.actors
+}
+
 var RevueViewModel = function(){
   var self = this;
-  self.sketches = ko.observableArray([]);
+  self.acts = ko.observableArray([]);
+//  self.sketches = ko.observableArray([]);
   self.actors = ko.observableArray([]);
+  self.segments = ko.observableArray([]);
+  self.curSegment = self.segments().length;
    
   self.addActor = function(data){
     var actor = self.getActor(data);
@@ -209,6 +223,7 @@ var RevueViewModel = function(){
    */
   self.clearSegment = function(){
     for(var i in self.actors){
+      self.actors.sketches = ko.observableArray([]);
     }
   }
 
@@ -216,19 +231,28 @@ var RevueViewModel = function(){
    * Adds the segment to the list of segments
    */
   self.saveSegment = function(){
+    var segmentObj = new Segment({actors: self.actors});
+    self.segments.push(segmentObj);
   }
 
   /**
    * Load a saved segment
    */
   self.loadSegment = function(index){
+    var segment = self.segments()[index];
+    if(segment != undefined){
+      self.curSegment = index;
+      self.actors = segment.actors;
+    }
   }
 
   /**
    * Removes a segment from the list of segments
    */
   self.removeSegment = function(index){
-
+    if(self.segments()[index] != undefined){
+      self.segments.splice(index,1);
+    }
   }
 
 
@@ -236,6 +260,9 @@ var RevueViewModel = function(){
     //Work through the data and collect all actors
     for(var i in data.acts){
       var act = data.acts[i];
+      var actObj = new Act(act);
+      self.acts.push(actObj);
+
       for(var j in act.materials){
         var sketch = act.materials[j];
         var roles = [];
@@ -250,7 +277,7 @@ var RevueViewModel = function(){
           actor.addRole(roleObj);
         }
         var sketchObj = new Sketch({'title':sketch.title,'roles':roles});
-        self.sketches.push(sketchObj);
+        actObj.sketches.push(sketchObj);
       }
     }
     self.actors.sort(function(left,right){

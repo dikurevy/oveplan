@@ -20,7 +20,9 @@ td{
 tr.inUse {
   background-color: rgba(0,255,0,.5);
 }
-
+.pause {
+  text-align: center;  
+}
 .disabled {
   background-color:rgba(0,0,0,.25);
 }

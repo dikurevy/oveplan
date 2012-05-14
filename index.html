@@ -24,26 +24,32 @@
         <!-- /ko -->
       </tr>
     </thead>
+    <!-- ko foreach: acts -->
+    <tr>
+      <th class="pause" data-bind="attr: {colspan:
+      $root.actors().length+1}, text:title"></th>
+    </tr>
     <tbody data-bind="foreach: sketches">
       <tr data-bind="css: {inUse: inUse, disabled: taken}">
         <th>
           <input type="checkbox" data-bind="checked: inUse, attr: {'id':
           key},
           value: key"/>
-          <label data-bind="text: key, attr: {'for': key}"></label>
+          <label data-bind="text: title, attr: {'for': key}"></label>
         </th>
           <!-- ko foreach: $root.actors -->
           <td data-bind="if: $parent.inSketch($data)">
-          <!-- ko ifnot: disabled -->
+            <!-- ko ifnot: disabled -->
           <input type="checkbox" data-bind="value: $parent.key(),
           checked: sketches" /><label data-bind="text:
           $parent.getRole($data)">
             </label>
-          <!-- /ko -->
+            <!-- /ko -->
           </td>
           <!-- /ko -->
       </tr>
     </tbody> 
+    <!-- /ko -->
   </table>
 </body>
 <script type="text/javascript" src="model.js"></script>
