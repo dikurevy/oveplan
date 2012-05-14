@@ -7,7 +7,11 @@
 <link rel="StyleSheet" href="style.css" type="text/css">
 </head>
 <body>
-  <table>
+<div id="menu">
+<button data-bind="click: newSegment">New segment</button>
+</div>
+<div data-bind="if: activeView() == 'Actor'">
+  <table data-bind="with: currentSegment">
     <col>
     <colgroup data-bind="foreach: actors">
       <col data-bind="css: {inUse: sketches().length > 0,
@@ -27,7 +31,7 @@
     <!-- ko foreach: acts -->
     <tr>
       <th class="pause" data-bind="attr: {colspan:
-      $root.actors().length+1}, text:title"></th>
+      $parent.actors().length+1}, text:title"></th>
     </tr>
     <tbody data-bind="foreach: sketches">
       <tr data-bind="css: {inUse: inUse, disabled: taken}">
@@ -37,20 +41,21 @@
           value: key"/>
           <label data-bind="text: title, attr: {'for': key}"></label>
         </th>
-          <!-- ko foreach: $root.actors -->
-          <td data-bind="if: $parent.inSketch($data)">
-            <!-- ko ifnot: disabled -->
+        <!-- ko foreach: $root.currentSegment().actors -->
+        <td data-bind="if: $parent.inSketch($data)">
+          <!-- ko ifnot: disabled -->
           <input type="checkbox" data-bind="value: $parent.key(),
           checked: sketches" /><label data-bind="text:
           $parent.getRole($data)">
             </label>
-            <!-- /ko -->
-          </td>
           <!-- /ko -->
+        </td>
+        <!-- /ko -->
       </tr>
     </tbody> 
     <!-- /ko -->
   </table>
+</div>
 </body>
 <script type="text/javascript" src="model.js"></script>
 </html>

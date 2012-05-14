@@ -181,17 +181,10 @@ var Act = function(data){
 }
 
 var Segment = function(data){
-  self = this;
-  self.actors = data.actors
-}
-
-var RevueViewModel = function(){
   var self = this;
   self.acts = ko.observableArray([]);
-//  self.sketches = ko.observableArray([]);
   self.actors = ko.observableArray([]);
   self.segments = ko.observableArray([]);
-  self.curSegment = self.segments().length;
    
   self.addActor = function(data){
     var actor = self.getActor(data);
@@ -212,10 +205,50 @@ var RevueViewModel = function(){
     return undefined;
   }
 
+  $.getJSON('json.js',function(data){
+    //Work through the data and collect all actors
+    for(var i in data.acts){
+      var act = data.acts[i];
+      var actObj = new Act(act);
+      self.acts.push(actObj);
+
+      for(var j in act.materials){
+        var sketch = act.materials[j];
+        var roles = [];
+
+        for(var k in sketch.roles){
+          var role = sketch.roles[k];
+          var actor = self.addActor({id: role.actor.toLowerCase(), name: role.actor});
+          role.actor = actor;
+          //ok, so we know that the actor exists nowa
+          var roleObj = new Role(role);
+          roles.push(roleObj);
+          actor.addRole(roleObj);
+        }
+        var sketchObj = new Sketch({'title':sketch.title,'roles':roles});
+        actObj.sketches.push(sketchObj);
+      }
+    }
+    self.actors.sort(function(left,right){
+      return left.name() == right.name() ? 0 : (left.name() <
+      right.name() ? -1 : 1);
+    });
+  });
+}
+
+var RevueViewModel = function(){
+  var self = this;
+ 
+  self.currentSegment = ko.observable(new Segment());
+  self.segments = ko.observableArray([]);
+  self.views = ko.observableArray(['Actor','Config','Rooms']);
+  self.activeView = ko.observable('Actor');
+
   /**
    * Creates a new segment, might not be needed
    */
   self.newSegment = function(){
+    self.currentSegment(new Segment());
   }
 
   /**
@@ -254,39 +287,7 @@ var RevueViewModel = function(){
       self.segments.splice(index,1);
     }
   }
-
-
-  $.getJSON('json.js',function(data){
-    //Work through the data and collect all actors
-    for(var i in data.acts){
-      var act = data.acts[i];
-      var actObj = new Act(act);
-      self.acts.push(actObj);
-
-      for(var j in act.materials){
-        var sketch = act.materials[j];
-        var roles = [];
-
-        for(var k in sketch.roles){
-          var role = sketch.roles[k];
-          var actor = self.addActor({id: role.actor.toLowerCase(), name: role.actor});
-          role.actor = actor;
-          //ok, so we know that the actor exists nowa
-          var roleObj = new Role(role);
-          roles.push(roleObj);
-          actor.addRole(roleObj);
-        }
-        var sketchObj = new Sketch({'title':sketch.title,'roles':roles});
-        actObj.sketches.push(sketchObj);
-      }
-    }
-    self.actors.sort(function(left,right){
-      return left.name() == right.name() ? 0 : (left.name() <
-      right.name() ? -1 : 1);
-    });
-  });
 }
-
 var model = new RevueViewModel();
 ko.applyBindings(model);
 
