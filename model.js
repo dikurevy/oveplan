@@ -31,32 +31,6 @@ var Actor = function(data){
     }
   }
 
- 
-/*  self._something = [];
-  self.sketches = ko.observableArray([]);ko.computed({
-    read: function(){
-      return self._something;
-    },
-    write: function(value){
-      self._something.push(value);
-    },
-    push: function(value){
-      alert('wtf');
-    }
-  });
-*/
-/*  self.addSketch = function(data){
-  }
-
-  self.getSketch = function(data){
-    for(var i in self.sketches){
-      if(self.sketches[i].equals(data)){
-        return true;
-      }
-    }
-    return false;
-  }
-*/
   this.equals = function(obj){
     return (self.name == obj.name);
   }
@@ -68,21 +42,7 @@ var Role = function(data){
   self.title = data.title;
   self.actor = data.actor; //an actor object
   self.sketch = data.sketch
-/*  self.inUse = ko.computed({
-    'read': function(){
-      return self.actor.sketches().indexOf(self.sketch.key()) > -1;
-    },
-    'write': function(value){
-      if(value){
-        self.actor.sketches().push(self.sketch.key());
-      } else {
-        self.actor.sketches().remove(function(item){
-          item == self.sketch.key();
-        });
-      }
-    }
-  });
-  */ 
+
   self.equals = function(obj){
     return (self.abbr == obj.abbr && self.actor == obj.actor);
   }
@@ -102,6 +62,7 @@ var Sketch = function(data){
     }
     return false;
   });
+
   self.inUse = ko.computed({
     read: function(){
       for(var i in self.roles()){
@@ -151,29 +112,7 @@ var Sketch = function(data){
     return (self.title == obj.title);
   }
 }
-/*
-ko.bindingHandlers.selectSketch = {
-  'update': function(element, valueAccessor, allBindingsAccessor) {
-    var observer = valueAccessor(), allBindings = allBindingsAccessor();
-    var value = ko.utils.unwrapObservable(value);
-    
-    var sketch = allBindings.sketch;
-    
-    if(value){
-      //check all checkboxes
 
-    } else {
-      //uncheck all checkboxes
-    }
-  }
-}
-
-ko.bindingHandlers.selectActor = {
-  'update': function(element, valueAccessor, allBindingsAccessor){
-
-  }
-}
-*/
 var Act = function(data){
   self = this;
   self.title = ko.observable(data.title);
@@ -185,7 +124,34 @@ var Segment = function(data){
   self.acts = ko.observableArray([]);
   self.actors = ko.observableArray([]);
   self.segments = ko.observableArray([]);
-   
+  self.showConfig = ko.observable(false);
+  self.start = ko.observable();
+  self.end = ko.observable();
+  self.time = ko.computed(function(){
+    return self.start() + " - " + self.end();
+  });
+
+  self.toggleConfig = function(){
+    if(self.showConfig())
+      self.showConfig(false);
+    else
+      self.showConfig(true);
+  }
+
+  self.sketches = ko.computed(function(){
+    var sketches = "";
+    for(var i in self.acts()){
+      var act = self.acts()[i];
+      for(var j in act.sketches()){
+        var sketch = act.sketches()[j];
+        if(sketch.inUse()){
+          sketches += sketch.title() + ",";
+        }
+      }
+    }
+    return sketches;
+  });
+
   self.addActor = function(data){
     var actor = self.getActor(data);
     if(actor == undefined){
@@ -240,14 +206,23 @@ var RevueViewModel = function(){
   var self = this;
  
   self.currentSegment = ko.observable(new Segment());
+  self.currentSegmentId = null;
   self.segments = ko.observableArray([]);
-  self.views = ko.observableArray(['Actor','Config','Rooms']);
-  self.activeView = ko.observable('Actor');
+  self.views = ko.observableArray([
+    {name:'Actor', menu: []},
+    {name:'Rooms', menu: []}
+  ]);
+  self.activeView = ko.observable(self.views()[0]);
+
+  self.chooseView = function(data){
+    self.activeView(data);
+  }
 
   /**
    * Creates a new segment, might not be needed
    */
   self.newSegment = function(){
+    self.currentSegmentId = null;
     self.currentSegment(new Segment());
   }
 
@@ -255,37 +230,43 @@ var RevueViewModel = function(){
    * Clears all data in the current segment
    */
   self.clearSegment = function(){
-    for(var i in self.actors){
-      self.actors.sketches = ko.observableArray([]);
-    }
+    self.newSegment();
   }
 
   /**
    * Adds the segment to the list of segments
    */
-  self.saveSegment = function(){
-    var segmentObj = new Segment({actors: self.actors});
-    self.segments.push(segmentObj);
+  self.addSegment = function(){
+    if(self.currentSegment().start() == undefined|| self.currentSegment().end() ==
+      undefined){
+      alert('Please supply start and end time for the segment before adding');
+      return;
+    }
+    self.segments.push(self.currentSegment());
+    self.segments.sort(function(left,right){
+      return left.start == right.start ? 0 : (left.start < right.start ?
+      -1 : 1);
+    });
+    self.newSegment();
   }
 
+  self.addPause = function(){
+    //show a message dialog asking for start and endtime.
+    //Then add an empty segment, also with no actors in it
+  }
   /**
    * Load a saved segment
    */
-  self.loadSegment = function(index){
-    var segment = self.segments()[index];
-    if(segment != undefined){
-      self.curSegment = index;
-      self.actors = segment.actors;
-    }
+  self.loadSegment = function(data){
+    self.segments.remove(data);
+    self.currentSegment(data);  
   }
 
   /**
    * Removes a segment from the list of segments
    */
-  self.removeSegment = function(index){
-    if(self.segments()[index] != undefined){
-      self.segments.splice(index,1);
-    }
+  self.removeSegment = function(data){
+    self.segments.remove(data);
   }
 }
 var model = new RevueViewModel();
