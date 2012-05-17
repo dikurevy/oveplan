@@ -19,6 +19,18 @@ td{
   padding:5px;
 }
 
+.session{
+  width: 200px;
+}
+
+.free{
+  width: 200px;
+}
+
+.free span:after{
+  content: " ";
+}
+
 tr.inUse {
   background-color: rgba(0,255,0,.5);
 }
@@ -66,4 +78,11 @@ tr.inUse {
   margin: auto;
   top:200px;
   z-index: 900;
+}
+
+.sketch-title{
+  display: block;
+  clear: right;
+  font-size: 12pt;
+  font-weight: bold;
 }

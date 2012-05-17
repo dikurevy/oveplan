@@ -53,6 +53,7 @@ var Sketch = function(data){
   self.key = ko.observable(data.title.replace(/[^a-z\-_]/ig,""));
   self.title = ko.observable(data.title);
   self.roles = ko.observableArray(data.roles);
+  self.room = ko.observable(undefined);
 
   self.taken = ko.computed(function(){
     for(var i in self.roles()){
@@ -108,6 +109,16 @@ var Sketch = function(data){
     return false;
   }
 
+  self.actors = ko.computed(function(){
+    retval = [];
+    for(var i in self.roles()){
+      var actor = self.roles()[i].actor;
+     if(actor.sketches.indexOf(self.key))
+       retval.push(actor);
+    }
+    return retval;
+  });
+
   self.equals = function(obj){
     return (self.title == obj.title);
   }
@@ -119,16 +130,52 @@ var Act = function(data){
   self.sketches = ko.observableArray([]);
 }
 
+var Room = function(data){
+  var self = this;
+  self.name = data.name;
+  self.sketch = ko.observable(data.sketch);
+}
+
 var Segment = function(data){
   var self = this;
   self.acts = ko.observableArray([]);
   self.actors = ko.observableArray([]);
-  self.segments = ko.observableArray([]);
   self.showConfig = ko.observable(false);
   self.start = ko.observable();
   self.end = ko.observable();
   self.time = ko.computed(function(){
     return self.start() + " - " + self.end();
+  });
+
+  self.rooms = ko.observableArray([]);
+  for(var i in data.rooms){
+    var room = data.rooms[i];
+    self.rooms.push(new Room({name:room.name,sketch: undefined}));
+  }
+  
+  self.sessions = ko.computed(function(){
+    retval = [];
+    for(var i in self.rooms()){
+      var room = self.rooms()[i];
+      if(room.sketch() == undefined){
+        for(var j in self.acts()){
+          var act = self.acts()[j];
+          for(var k in act.sketches()){
+            var sketch = act.sketches()[k];
+            if(sketch.inUse() && sketch.room() == undefined){
+              sketch.room(room);
+              room.sketch(sketch);
+              break;
+            }
+          }
+        }
+        if(room.sketch() == undefined){
+          room.sketch(null);
+        }
+      }
+      retval.push(room);
+    }
+    return retval;
   });
 
   self.toggleConfig = function(){
@@ -138,6 +185,17 @@ var Segment = function(data){
       self.showConfig(true);
   }
 
+  self.freeActors = ko.computed(function(){
+    var retval = [];
+    for(var i in self.actors()){
+      var actor = self.actors()[i];
+      if(actor.sketches().length == 0){
+        retval.push(actor);
+      }
+    }
+    return retval;
+  });
+
   self.sketches = ko.computed(function(){
     var sketches = "";
     for(var i in self.acts()){
@@ -145,7 +203,7 @@ var Segment = function(data){
       for(var j in act.sketches()){
         var sketch = act.sketches()[j];
         if(sketch.inUse()){
-          sketches += sketch.title() + ",";
+          sketches += sketch.title() + ", ";
         }
       }
     }
@@ -171,23 +229,22 @@ var Segment = function(data){
     return undefined;
   }
 
-  $.getJSON('json.js',function(data){
+  self.init = function(data){
     //Work through the data and collect all actors
     for(var i in data.acts){
       var act = data.acts[i];
+
       var actObj = new Act(act);
       self.acts.push(actObj);
 
       for(var j in act.materials){
         var sketch = act.materials[j];
         var roles = [];
-
         for(var k in sketch.roles){
           var role = sketch.roles[k];
-          var actor = self.addActor({id: role.actor.toLowerCase(), name: role.actor});
-          role.actor = actor;
-          //ok, so we know that the actor exists nowa
           var roleObj = new Role(role);
+          var actor = self.addActor({id: role.actor.toLowerCase(), name: role.actor});
+          roleObj.actor = actor;
           roles.push(roleObj);
           actor.addRole(roleObj);
         }
@@ -195,23 +252,48 @@ var Segment = function(data){
         actObj.sketches.push(sketchObj);
       }
     }
+
     self.actors.sort(function(left,right){
       return left.name() == right.name() ? 0 : (left.name() <
       right.name() ? -1 : 1);
     });
-  });
+  }
+  /* Event handlers for the room plan */
+  self._srcElement = undefined;
+
+  self.startdragHandler = function(data, event){
+    console.log(data.sketch().title());
+    self._srcElement = data;
+    return true;
+  }
+
+  self.dragoverHandler = function(data, event){
+    event.preventDefault();
+  }
+
+  self.dropHandler = function(data, event){
+    console.log('dropping');
+    if(self._srcElement != undefined){
+      var tmp = data == null ? null : data.sketch();
+      data.sketch(self._srcElement.sketch());
+      self._srcElement.sketch(tmp);
+      self._srcElement = undefined;
+    }
+  }
 }
 
 var RevueViewModel = function(){
   var self = this;
  
-  self.currentSegment = ko.observable(new Segment());
+  //this should be fixed
+  self.currentSegment = ko.observable(new Segment({rooms:[]}));
   self.currentSegmentId = null;
   self.segments = ko.observableArray([]);
   self.views = ko.observableArray([
     {name:'Actor', menu: []},
     {name:'Rooms', menu: []}
   ]);
+  self.rooms = ['Harlem','Store UP1','1-0-37'];
   self.activeView = ko.observable(self.views()[0]);
 
   self.chooseView = function(data){
@@ -223,7 +305,9 @@ var RevueViewModel = function(){
    */
   self.newSegment = function(){
     self.currentSegmentId = null;
-    self.currentSegment(new Segment());
+    var segment = new Segment({rooms:self.rooms});
+    segment.init(self.data);
+    self.currentSegment(segment);
   }
 
   /**
@@ -268,6 +352,11 @@ var RevueViewModel = function(){
   self.removeSegment = function(data){
     self.segments.remove(data);
   }
+
+  $.getJSON('json.js',function(data){
+    self.data = data;
+    self.newSegment(data);
+  });
 }
 var model = new RevueViewModel();
 ko.applyBindings(model);

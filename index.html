@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<script type="text/javascript" src="json2.js"></script>
 <script type="text/javascript" src="knockout-2.0.0.js"></script>
 <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
 <link rel="StyleSheet" href="style.css" type="text/css">
@@ -77,6 +78,33 @@ data-bind="value: currentSegment().end" /></div>
     </tr>
   </table>
 </div>
+<div data-bind="if: activeView().name == 'Rooms'">
+<table id="rooms">
+  <thead>
+    <tr>
+      <th>Time</th>
+    <!-- ko foreach: rooms -->
+      <th data-bind="text: $data"></th>
+    <!-- /ko -->
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: segments">
+    <tr>
+      <th data-bind="text: time"></th>
+      <!-- ko foreach: sessions -->
+      <td class="session" draggable="true"
+      data-bind="event:{dragstart: $parent.startdragHandler, dragover:
+      $parent.dragoverHandler, drop: $parent.dropHandler}"><div>
+      <!-- ko if: sketch() != undefined -->
+        <span class="sketch-title" data-bind="text: sketch().title"></span>
+        <!-- ko foreach: sketch().actors -->
+        <span class="actor" data-bind="text: name"></span>
+        <!-- /ko --><!-- /ko --></div>
+      </td>
+      <!-- /ko -->
+      <td class="free" data-bind="foreach: freeActors"><span data-bind="text: name"></span></td>
+    </tr>
+</table>
 </body>
 <script type="text/javascript" src="model.js"></script>
 </html>
