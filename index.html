@@ -14,11 +14,12 @@
 
 <div data-bind="if: activeView().name == 'Actor'">
 <div id="menu">
-<!--  <button data-bind="click: newSegment">New Segment</button> -->
+  <button data-bind="click: newSegment">New Segment</button>
   <button data-bind="click: addSegment">Add Segment</button>
   <button data-bind="click: clearSegment">Clear Segment</button>
-  <button data-bind="click: currentSegment().toggleConfig">Configure
-  segment</button>
+<!--  <button data-bind="click: currentSegment().toggleConfig">Configure
+  segment</button> -->
+  <button data-bind-"click: removeAll">Remove all segments</button>
 <label for="start">Segment start:</label><input type="text"
 data-bind="value: currentSegment().start" />
 <label for="end">Segment end:</label><input type="text"
@@ -54,13 +55,15 @@ data-bind="value: currentSegment().end" /></div>
           <label data-bind="text: title, attr: {'for': key}"></label>
         </th>
         <!-- ko foreach: $root.currentSegment().actors -->
-        <td data-bind="if: $parent.inSketch($data)">
+        <td class="actor" data-bind="if: $parent.inSketch($data)">
           <!-- ko ifnot: disabled -->
+          <label data-bind="text: getRole($data).abbr,
+          attr:{for:$parent.key()+'-'+getRole($data).abbr}">          
+          </label>
           <input type="checkbox" data-bind="value: $parent.key(),
-          checked: sketches" /><label data-bind="text:
-          $parent.getRole($data)">
-            </label>
-          <!-- /ko -->
+          checked: sketches, attr:{id:
+          $parent.key()+'-'+getRole($data).abbr}" />
+<!-- /ko -->
         </td>
         <!-- /ko -->
       </tr>
@@ -79,18 +82,19 @@ data-bind="value: currentSegment().end" /></div>
   </table>
 </div>
 <div data-bind="if: activeView().name == 'Rooms'">
-<table id="rooms">
+<table id="plan">
   <thead>
     <tr>
-      <th>Time</th>
+      <th class="time">Time</th>
     <!-- ko foreach: rooms -->
       <th data-bind="text: $data"></th>
     <!-- /ko -->
+      <th>Free</th>
     </tr>
   </thead>
   <tbody data-bind="foreach: segments">
     <tr>
-      <th data-bind="text: time"></th>
+      <th class="time" data-bind="text: time"></th>
       <!-- ko foreach: sessions -->
       <td class="session" draggable="true"
       data-bind="event:{dragstart: $parent.startdragHandler, dragover:

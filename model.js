@@ -25,7 +25,7 @@ var Actor = function(data){
 
   self.getRole = function(data){
     for(var i in self.roles()){
-      if(data.abbr == self.roles()[i].abbr)
+      if(data.sketch == self.roles()[i].sketch)
         return self.roles()[i];
       return undefined;
     }
@@ -293,7 +293,12 @@ var RevueViewModel = function(){
     {name:'Actor', menu: []},
     {name:'Rooms', menu: []}
   ]);
-  self.rooms = ['Harlem','Store UP1','1-0-37'];
+  self.rooms = ['Lille UP1',
+  '1-0-37',
+  '1-0-34',
+  '1-0-30',
+  '1-0-26',
+  'Harlem'];
   self.activeView = ko.observable(self.views()[0]);
 
   self.chooseView = function(data){
@@ -342,7 +347,6 @@ var RevueViewModel = function(){
    * Load a saved segment
    */
   self.loadSegment = function(data){
-    self.segments.remove(data);
     self.currentSegment(data);  
   }
 
@@ -351,6 +355,10 @@ var RevueViewModel = function(){
    */
   self.removeSegment = function(data){
     self.segments.remove(data);
+  }
+
+  self.removeAll = function(data){
+    self.segments([]);
   }
 
   $.getJSON('json.js',function(data){

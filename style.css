@@ -7,7 +7,9 @@ body{
 table{
   border-collapse:collapse;
 }
-
+.actor label{
+  display: block;
+}
 th{
   text-align:left;
   padding: 5px;
@@ -19,6 +21,22 @@ td{
   padding:5px;
 }
 
+#plan td, #plan th{
+  vertical-align: text-top;
+  border: 5px solid rgb(0,0,0);
+  text-align: left;
+  padding: 5px;
+}
+
+#plan th{
+  font-size: 12pt;
+  text-align: center;
+  width: 200px;
+}
+#plan th.time{
+  width: 75px;
+  text-align:center;
+}
 .session{
   width: 200px;
 }
