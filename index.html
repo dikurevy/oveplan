@@ -12,7 +12,7 @@
   <li data-bind="text: name, click: $root.chooseView"></li>
 </ul>
 
-<div data-bind="if: activeView().name == 'Actor'">
+<div data-bind="if: activeView().name == 'Roles'">
 <div id="menu">
   <button data-bind="click: newSegment">New Segment</button>
   <button data-bind="click: addSegment">Add Segment</button>
@@ -24,7 +24,7 @@
 data-bind="value: currentSegment().start" />
 <label for="end">Segment end:</label><input type="text"
 data-bind="value: currentSegment().end" /></div>
-  <table data-bind="with: currentSegment">
+  <table id="actor" data-bind="with: currentSegment">
     <col>
     <colgroup data-bind="foreach: actors">
       <col data-bind="css: {inUse: sketches().length > 0,
@@ -34,28 +34,28 @@ data-bind="value: currentSegment().end" /></div>
       <tr>
         <th>Sketch/navn</th>
         <!-- ko foreach: actors -->
-        <th>
-          <input type="checkbox" data-bind="checked: disabled" /><label
-          data-bind="text: name" />
+        <th class="actor">
+          <label data-bind="text: name, attr: {for: id}" ></label>
+          <input type="checkbox" data-bind="checked: disabled, attr:{id: id}" />        
         </th>
         <!-- /ko -->
       </tr>
     </thead>
     <!-- ko foreach: acts -->
     <tr>
-      <th class="pause" data-bind="attr: {colspan:
+      <th class="act" data-bind="attr: {colspan:
       $parent.actors().length+1}, text:title"></th>
     </tr>
     <tbody data-bind="foreach: sketches">
       <tr data-bind="css: {inUse: inUse, disabled: taken}">
-        <th>
+        <th class="sketch">
           <input type="checkbox" data-bind="checked: inUse, attr: {'id':
           key},
           value: key"/>
           <label data-bind="text: title, attr: {'for': key}"></label>
         </th>
         <!-- ko foreach: $root.currentSegment().actors -->
-        <td class="actor" data-bind="if: $parent.inSketch($data)">
+        <td class="role" data-bind="if: $parent.inSketch($data)">
           <!-- ko ifnot: disabled -->
           <label data-bind="text: getRole($data).abbr,
           attr:{for:$parent.key()+'-'+getRole($data).abbr}">          

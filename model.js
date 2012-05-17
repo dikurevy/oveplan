@@ -262,7 +262,6 @@ var Segment = function(data){
   self._srcElement = undefined;
 
   self.startdragHandler = function(data, event){
-    console.log(data.sketch().title());
     self._srcElement = data;
     return true;
   }
@@ -272,7 +271,6 @@ var Segment = function(data){
   }
 
   self.dropHandler = function(data, event){
-    console.log('dropping');
     if(self._srcElement != undefined){
       var tmp = data == null ? null : data.sketch();
       data.sketch(self._srcElement.sketch());
@@ -290,7 +288,7 @@ var RevueViewModel = function(){
   self.currentSegmentId = null;
   self.segments = ko.observableArray([]);
   self.views = ko.observableArray([
-    {name:'Actor', menu: []},
+    {name:'Roles', menu: []},
     {name:'Rooms', menu: []}
   ]);
   self.rooms = ['Lille UP1',

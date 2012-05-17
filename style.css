@@ -4,39 +4,53 @@ body{
   padding-top: 30px;
   padding-bottom: 30px;
 }
+
 table{
   border-collapse:collapse;
 }
-.actor label{
-  display: block;
-}
-th{
-  text-align:left;
-  padding: 5px;
+
+/* Actor view styles */
+#actor th.actor, #actor td {
+  text-align:center;
 }
 
-td{
+#actor td{
   border: 1px solid rgb(0,0,0);
   text-align:center;
   padding:5px;
 }
 
-#plan td, #plan th{
-  vertical-align: text-top;
-  border: 5px solid rgb(0,0,0);
-  text-align: left;
+#actor .name label, #actor .role label{
+  display: block;
+}
+
+th{
+  text-align:left;
   padding: 5px;
 }
 
+
+
+#plan td, #plan th{
+  vertical-align: text-top;
+  border: 5px solid rgb(0,0,0);
+  padding: 5px;
+}
+#plan td {
+  height: 50px;
+  text-align: left;
+}
 #plan th{
   font-size: 12pt;
   text-align: center;
-  width: 200px;
+  width: 150px;
 }
+
 #plan th.time{
   width: 75px;
   text-align:center;
 }
+
 .session{
   width: 200px;
 }
@@ -52,12 +66,15 @@ td{
 tr.inUse {
   background-color: rgba(0,255,0,.5);
 }
-.pause {
+
+.act {
   text-align: center;  
 }
+
 .disabled {
   background-color:rgba(0,0,0,.25);
 }
+
 .inUse {
   background-color:rgba(255,0,0,.5);
 }
@@ -91,6 +108,7 @@ tr.inUse {
   background-color: #FFF;
   padding: 5px;
 }
+
 #segment-config{
   position: fixed;
   margin: auto;
@@ -104,3 +122,5 @@ tr.inUse {
   font-size: 12pt;
   font-weight: bold;
 }
+
+
