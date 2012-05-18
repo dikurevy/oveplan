@@ -359,7 +359,7 @@ var RevueViewModel = function(){
     self.segments([]);
   }
 
-  $.getJSON('json.js',function(data){
+  $.getJSON('../json.js',function(data){
     self.data = data;
     self.newSegment(data);
   });
